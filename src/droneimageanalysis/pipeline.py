@@ -1,9 +1,11 @@
 import torch
 from exif_gps import build_image_records, build_candidate_pairs
 from matching import init_matcher, match_pair
+from homography import compute_homography
 
-DATASET_DIR = r"D:\droneImage\droneImageAnalysis\data\dataset\Dataset1_SanPedroRiver_20230621\Dataset1_SanPedroRiver_20230621"
-MAX_DIST_M = 50.0
+DATASET_DIR = r"droneImageAnalysis\data\dataset\Dataset1_SanPedroRiver_20230621\Dataset1_SanPedroRiver_20230621"
+MAX_DIST_M = 30.0
+MIN_MATCHES = 30
 
 if __name__ == "__main__":
     # 建立圖片清單
@@ -24,9 +26,10 @@ if __name__ == "__main__":
     print(f"\n使用裝置：{device}")
     extractor, matcher = init_matcher(device)
 
-    # 開始匹配
-    print("\n開始特徵匹配...")
-    results = []
+    # 開始匹配 + Homography
+    print("\n開始特徵匹配 + Homography 計算...")
+    good_pairs = []
+
     for i, j, dist in pairs:
         result = match_pair(
             extractor, matcher, device,
@@ -34,9 +37,29 @@ if __name__ == "__main__":
             records[j]["path"]
         )
         n = result["n_matches"]
-        results.append((records[i]["name"], records[j]["name"], dist, n))
-        print(f"  {records[i]['name']} ↔ {records[j]['name']} | GPS距離 {dist:.1f}m | 匹配點 {n}")
 
-    # 統計
-    good = [r for r in results if r[3] >= 50]
-    print(f"\n完成！共處理 {len(results)} 對，其中 {len(good)} 對匹配點 ≥ 50")
+        if n < MIN_MATCHES:
+            continue
+
+        H, n_inliers = compute_homography(
+            result["kpts_a"],
+            result["kpts_b"],
+            result["matches"]
+        )
+
+        if H is None:
+            continue
+
+        good_pairs.append({
+            "i": i,
+            "j": j,
+            "dist": dist,
+            "n_matches": n,
+            "n_inliers": n_inliers,
+            "H": H,
+        })
+
+        print(f"  {records[i]['name']} ↔ {records[j]['name']} | "
+              f"GPS距離 {dist:.1f}m | 匹配點 {n} | inliers {n_inliers}")
+
+    print(f"\n完成！共找到 {len(good_pairs)} 對有效配對")
