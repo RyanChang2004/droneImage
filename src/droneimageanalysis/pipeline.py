@@ -3,7 +3,7 @@ from exif_gps import build_image_records, build_candidate_pairs
 from matching import init_matcher, match_pair
 from homography import compute_homography
 
-DATASET_DIR="/root/droneImage/data/dataset/Dataset1_SanPedroRiver_20230621/Dataset1_SanPedroRiver_20230621"
+DATASET_DIR="/home/ryan0916/droneImage/data/dataset/Dataset1_SanPedroRiver_20230621/Dataset1_SanPedroRiver_20230621"
 MAX_DIST_M = 30.0
 MIN_MATCHES = 30
 
