@@ -1,0 +1,25 @@
+[project]
+name = "droneimageanalysis"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+readme = "README.md"
+requires-python = "^3.12"
+dependencies = [
+    "torchvision (==0.20.1)",
+    "lightglue @ git+https://github.com/cvg/LightGlue.git",
+    "pyproj (>=3.8.0,<4.0.0)",
+    "torch (==2.5.1)",
+    "opencv-python (>=5.0.0.93,<6.0.0.0)",
+    "numpy (>=2.5.3,<3.0.0)",
+    "pillow (>=12.3.0,<13.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "droneimageanalysis", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
