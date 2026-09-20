@@ -2,6 +2,8 @@ import torch
 from exif_gps import build_image_records, build_candidate_pairs
 from matching import init_matcher, match_pair
 from homography import compute_homography
+from blending import warp_and_blend
+import cv2
 
 DATASET_DIR="/home/ryan0916/droneImage/data/dataset/Dataset1_SanPedroRiver_20230621/Dataset1_SanPedroRiver_20230621"
 MAX_DIST_M = 30.0
@@ -63,3 +65,9 @@ if __name__ == "__main__":
               f"GPS距離 {dist:.1f}m | 匹配點 {n} | inliers {n_inliers}")
 
     print(f"\n完成！共找到 {len(good_pairs)} 對有效配對")
+
+    print("\n開始拼接...")
+    mosaic = warp_and_blend(records, good_pairs)
+    output_path = "mosaic.png"
+    cv2.imwrite(output_path, mosaic)
+    print(f"完成！輸出到 {output_path}")
