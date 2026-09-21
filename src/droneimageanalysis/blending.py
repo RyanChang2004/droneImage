@@ -27,6 +27,7 @@ def warp_and_blend(records, good_pairs):
         if global_H[idx] is None:
             continue
         img = cv2.imread(record["path"])
+        img = cv2.resize(img, (0, 0), fx=0.1, fy=0.1)
         h, w = img.shape[:2]
         corners = np.array([[0, 0], [w, 0], [w, h], [0, h]], dtype=np.float32)
         corners = cv2.perspectiveTransform(corners[None], global_H[idx])[0]
@@ -54,6 +55,7 @@ def warp_and_blend(records, good_pairs):
         if global_H[idx] is None:
             continue
         img = cv2.imread(record["path"])
+        img = cv2.resize(img, (0, 0), fx=0.1, fy=0.1)
         img = img.astype(np.float32)
         h, w = img.shape[:2]
 

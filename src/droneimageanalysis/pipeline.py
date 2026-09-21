@@ -6,7 +6,7 @@ from blending import warp_and_blend
 import cv2
 
 DATASET_DIR="/home/ryan0916/droneImage/data/dataset/Dataset1_SanPedroRiver_20230621/Dataset1_SanPedroRiver_20230621"
-MAX_DIST_M = 30.0
+MAX_DIST_M = 50.0
 MIN_MATCHES = 30
 
 if __name__ == "__main__":
