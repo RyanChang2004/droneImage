@@ -67,9 +67,12 @@ def refine_and_stitch(records, scale=0.1):
     img_w = int(img_w_orig * scale)
     img_h = int(img_h_orig * scale)
 
+    # 對相鄰圖片做匹配，微調位置
+    print("開始視覺精修...")
+    translations = defaultdict(list)
+
     for i in range(len(records)):
         for j in range(i + 1, len(records)):
-            # 只對 GPS 距離 ≤ 50m 的做匹配
             dx_m = abs(records[i]["x"] - records[j]["x"])
             dy_m = abs(records[i]["y"] - records[j]["y"])
             dist = (dx_m**2 + dy_m**2) ** 0.5
@@ -95,11 +98,16 @@ def refine_and_stitch(records, scale=0.1):
                 continue
 
             dx, dy = trans
-
-            positions[j][0] = positions[i][0] + int(dx)
-            positions[j][1] = positions[i][1] + int(dy)
-
+            translations[j].append((positions[i][0] + int(dx), positions[i][1] + int(dy)))
             print(f"  {records[i]['name']} ↔ {records[j]['name']} | 平移 ({dx:.1f}, {dy:.1f})")
+
+    # 用中位數更新位置
+    for idx in range(len(records)):
+        if idx in translations and len(translations[idx]) > 0:
+            xs = [t[0] for t in translations[idx]]
+            ys = [t[1] for t in translations[idx]]
+            positions[idx][0] = int(np.median(xs))
+            positions[idx][1] = int(np.median(ys))
 
     # 拼接
     print("開始拼接...")
