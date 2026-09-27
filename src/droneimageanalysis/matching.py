@@ -4,16 +4,15 @@ from lightglue.utils import load_image, rbd
 
 
 def init_matcher(device: torch.device):
-    """初始化 LightGlue 模型"""
-    extractor = SuperPoint(max_num_keypoints=2048).eval().to(device)
+    extractor = SuperPoint(max_num_keypoints=1024).eval().to(device)  # 從2048降到1024
     matcher = LightGlue(features="superpoint").eval().to(device)
     return extractor, matcher
 
 
 def match_pair(extractor, matcher, device, path_a: str, path_b: str) -> dict:
-    """對兩張圖片做特徵匹配，回傳匹配結果"""
-    image_a = load_image(path_a).to(device)
-    image_b = load_image(path_b).to(device)
+    # resize=1024 限制長邊，縮小圖片加速
+    image_a = load_image(path_a, resize=1024).to(device)
+    image_b = load_image(path_b, resize=1024).to(device)
 
     feats_a = extractor.extract(image_a)
     feats_b = extractor.extract(image_b)
