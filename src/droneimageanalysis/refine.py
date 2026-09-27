@@ -69,10 +69,11 @@ def refine_and_stitch(records, scale=0.1):
 
     for i in range(len(records)):
         for j in range(i + 1, len(records)):
-            # 只對 GPS 距離近的做匹配
-            dx_gps = abs(positions[i][0] - positions[j][0])
-            dy_gps = abs(positions[i][1] - positions[j][1])
-            if dx_gps > img_w or dy_gps > img_h:
+            # 只對 GPS 距離 ≤ 50m 的做匹配
+            dx_m = abs(records[i]["x"] - records[j]["x"])
+            dy_m = abs(records[i]["y"] - records[j]["y"])
+            dist = (dx_m**2 + dy_m**2) ** 0.5
+            if dist > 50.0:
                 continue
 
             result = match_pair(
@@ -94,9 +95,9 @@ def refine_and_stitch(records, scale=0.1):
                 continue
 
             dx, dy = trans
-            # 微調 j 的位置
-            positions[j][0] = positions[i][0] + int(dx * scale)
-            positions[j][1] = positions[i][1] + int(dy * scale)
+
+            positions[j][0] = positions[i][0] + int(dx)
+            positions[j][1] = positions[i][1] + int(dy)
 
             print(f"  {records[i]['name']} ↔ {records[j]['name']} | 平移 ({dx:.1f}, {dy:.1f})")
 
