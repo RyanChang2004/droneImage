@@ -62,10 +62,6 @@ def refine_and_stitch(records, scale=0.1):
         px, py = gps_to_pixel(record, x_min, y_max, gsd, scale)
         positions[idx] = [px, py]
 
-    # 對相鄰圖片做匹配，微調位置
-    print("開始視覺精修...")
-    img_w = int(img_w_orig * scale)
-    img_h = int(img_h_orig * scale)
 
     # 對相鄰圖片做匹配，微調位置
     print("開始視覺精修...")
@@ -76,7 +72,7 @@ def refine_and_stitch(records, scale=0.1):
             dx_m = abs(records[i]["x"] - records[j]["x"])
             dy_m = abs(records[i]["y"] - records[j]["y"])
             dist = (dx_m**2 + dy_m**2) ** 0.5
-            if dist > 50.0:
+            if dist > 100.0:
                 continue
 
             result = match_pair(
@@ -98,7 +94,7 @@ def refine_and_stitch(records, scale=0.1):
                 continue
 
             dx, dy = trans
-            translations[j].append((positions[i][0] + int(dx), positions[i][1] + int(dy)))
+            translations[j].append((positions[i][0] + int(dx*scale), positions[i][1] + int(dy*scale)))
             print(f"  {records[i]['name']} ↔ {records[j]['name']} | 平移 ({dx:.1f}, {dy:.1f})")
 
     # 用中位數更新位置
