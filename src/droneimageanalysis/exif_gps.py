@@ -68,16 +68,29 @@ def build_image_records(dataset_dir: str) -> list[dict]:
     return records
 
 
-def build_candidate_pairs(records: list[dict], max_dist_m: float = 50.0) -> list[tuple]:
-    """用 GPS 距離篩選出可能有重疊的圖片對"""
-    pairs = []
+def build_candidate_pairs(records: list[dict], max_dist_m: float = 50.0, k: int = 5) -> list[tuple]:
+    """每張圖只跟最近的 K 張做匹配"""
+    import heapq
+    pairs = set()
+    
     for i in range(len(records)):
-        for j in range(i + 1, len(records)):
+        # 計算這張圖跟所有其他圖的距離
+        distances = []
+        for j in range(len(records)):
+            if i == j:
+                continue
             dx = records[i]["x"] - records[j]["x"]
             dy = records[i]["y"] - records[j]["y"]
             dist = (dx**2 + dy**2) ** 0.5
             if dist <= max_dist_m:
-                pairs.append((i, j, dist))
-    pairs.sort(key=lambda x: x[2])
-    print(f"\n找到 {len(pairs)} 對候選圖片（距離 ≤ {max_dist_m}m）")
-    return pairs
+                distances.append((dist, j))
+        
+        # 只取最近的 K 張
+        distances.sort()
+        for dist, j in distances[:k]:
+            pair = (min(i, j), max(i, j), dist)
+            pairs.add(pair)
+    
+    result = sorted(pairs, key=lambda x: x[2])
+    print(f"找到 {len(result)} 對候選圖片（每張最多配對 {k} 張）")
+    return result

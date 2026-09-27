@@ -4,6 +4,7 @@ from matching import init_matcher, match_pair
 from homography import compute_homography
 from blending import warp_and_blend
 import cv2
+import json
 
 DATASET_DIR="/home/ryan0916/droneImage/data/dataset/Dataset1_SanPedroRiver_20230621/Dataset1_SanPedroRiver_20230621"
 MAX_DIST_M = 50.0
@@ -18,7 +19,7 @@ if __name__ == "__main__":
     print(f"\n共載入 {len(records)} 張圖片")
 
     # 找候選對
-    pairs = build_candidate_pairs(records, max_dist_m=MAX_DIST_M)
+    pairs = build_candidate_pairs(records, max_dist_m=MAX_DIST_M, k=5)
     if not pairs:
         print("沒有找到任何候選圖片對，試著調大 MAX_DIST_M")
         exit()
@@ -71,3 +72,25 @@ if __name__ == "__main__":
     output_path = "mosaic.png"
     cv2.imwrite(output_path, mosaic)
     print(f"完成！輸出到 {output_path}")
+
+# 存匹配結果
+pairs_to_save = []
+for pair in good_pairs:
+    pairs_to_save.append({
+        "i": pair["i"],
+        "j": pair["j"],
+        "dist": pair["dist"],
+        "n_matches": pair["n_matches"],
+        "n_inliers": pair["n_inliers"],
+        "H": pair["H"].tolist(),
+    })
+
+with open("good_pairs.json", "w") as f:
+    json.dump({
+        "records": [{"path": r["path"], "name": r["name"],
+                     "x": r["x"], "y": r["y"], "alt": r["alt"]}
+                    for r in records],
+        "pairs": pairs_to_save
+    }, f)
+
+print("匹配結果已存到 good_pairs.json")
