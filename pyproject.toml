@@ -14,7 +14,8 @@ dependencies = [
     "torch (==2.5.1)",
     "opencv-python (>=5.0.0.93,<6.0.0.0)",
     "numpy (>=2.5.3,<3.0.0)",
-    "pillow (>=12.3.0,<13.0.0)"
+    "pillow (>=12.3.0,<13.0.0)",
+    "pandas (>=3.0.6,<4.0.0)"
 ]
 
 [tool.poetry]
